@@ -21,7 +21,7 @@ RUN python -c "from cmdstanpy import install_cmdstan; install_cmdstan(dir='/opt'
 
 # Prophet 1.1.x may force a packaged cmdstan path (cmdstan-2.33.1).
 # Replace that bundled path with a symlink to the valid installed CmdStan.
-RUN python - <<'PY'\nimport os, site\nsite_pkg = site.getsitepackages()[0]\nprophet_stan = os.path.join(site_pkg, 'prophet', 'stan_model')\nos.makedirs(prophet_stan, exist_ok=True)\ntarget = '/opt/cmdstan/cmdstan-2.38.0'\nlink = os.path.join(prophet_stan, 'cmdstan-2.33.1')\nif os.path.islink(link) or os.path.exists(link):\n    try:\n        if os.path.islink(link):\n            os.unlink(link)\n        elif os.path.isdir(link):\n            import shutil\n            shutil.rmtree(link)\n        else:\n            os.remove(link)\n    except Exception:\n        pass\nos.symlink(target, link)\nprint('Linked', link, '->', target)\nPY
+RUN python -c "import os,site,shutil;site_pkg=site.getsitepackages()[0];prophet_stan=os.path.join(site_pkg,'prophet','stan_model');os.makedirs(prophet_stan,exist_ok=True);target='/opt/cmdstan/cmdstan-2.38.0';link=os.path.join(prophet_stan,'cmdstan-2.33.1');(os.unlink(link) if os.path.islink(link) else (shutil.rmtree(link) if os.path.isdir(link) else (os.remove(link) if os.path.exists(link) else None)));os.symlink(target,link);print('Linked',link,'->',target)"
 
 COPY app /app/app
 
