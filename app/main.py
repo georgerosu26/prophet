@@ -105,6 +105,7 @@ def _fit_model(
     seasonality_mode: str,
 ):
     model = Prophet(
+        stan_backend="CMDSTANPY",
         growth="linear",
         weekly_seasonality=True,
         yearly_seasonality=True,
