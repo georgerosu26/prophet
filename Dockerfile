@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PORT=8000 \
     MODEL_DIR=/app/models \
-    CMDSTAN=/opt/cmdstan
+    CMDSTAN=/opt/cmdstan/cmdstan-2.38.0
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \

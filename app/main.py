@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 import pandas as pd
+import cmdstanpy
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
 from prophet import Prophet
@@ -18,6 +19,34 @@ MAX_HORIZON_DAYS = int(os.getenv("MAX_HORIZON_DAYS", "180"))
 MIN_TRAIN_ROWS = int(os.getenv("MIN_TRAIN_ROWS", "60"))
 
 app = FastAPI(title="Prophet Forecast API", version="1.0.0")
+
+
+def _configure_cmdstan() -> None:
+    # Prefer explicitly-installed CmdStan locations in the container.
+    candidates = [
+        os.getenv("CMDSTAN", ""),
+        "/opt/cmdstan/cmdstan-2.38.0",
+        "/opt/cmdstan",
+    ]
+    for path in candidates:
+        if not path:
+            continue
+        makefile = os.path.join(path, "makefile")
+        if os.path.exists(makefile):
+            cmdstanpy.set_cmdstan_path(path)
+            return
+
+    # Fallback: search /opt for installed cmdstan-* directories.
+    try:
+        for name in sorted(os.listdir("/opt"), reverse=True):
+            if not name.startswith("cmdstan-"):
+                continue
+            candidate = os.path.join("/opt", name)
+            if os.path.exists(os.path.join(candidate, "makefile")):
+                cmdstanpy.set_cmdstan_path(candidate)
+                return
+    except FileNotFoundError:
+        pass
 
 
 class TrainRequest(BaseModel):
@@ -104,6 +133,7 @@ def _fit_model(
     seasonality_prior_scale: float,
     seasonality_mode: str,
 ):
+    _configure_cmdstan()
     model = Prophet(
         stan_backend="CMDSTANPY",
         growth="linear",
