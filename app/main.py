@@ -17,6 +17,7 @@ MODEL_DIR = os.getenv("MODEL_DIR", "/app/models")
 DEFAULT_HORIZON_DAYS = int(os.getenv("DEFAULT_HORIZON_DAYS", "91"))
 MAX_HORIZON_DAYS = int(os.getenv("MAX_HORIZON_DAYS", "180"))
 MIN_TRAIN_ROWS = int(os.getenv("MIN_TRAIN_ROWS", "60"))
+APP_VERSION = os.getenv("APP_VERSION", "1.0.1")
 
 app = FastAPI(title="Prophet Forecast API", version="1.0.0")
 
@@ -184,6 +185,19 @@ def _load_model(store_id: str):
 @app.get("/health")
 def health():
     return {"ok": True, "time": datetime.utcnow().isoformat() + "Z"}
+
+
+@app.get("/version")
+def version():
+    return {
+        "app_version": APP_VERSION,
+        "defaults": {
+            "default_horizon_days": DEFAULT_HORIZON_DAYS,
+            "max_horizon_days": MAX_HORIZON_DAYS,
+            "min_train_rows": MIN_TRAIN_ROWS,
+        },
+        "time": datetime.utcnow().isoformat() + "Z",
+    }
 
 
 @app.post("/train/{store_id}")

@@ -5,6 +5,7 @@ FastAPI service that trains and predicts per-store forecasts using `facebook/pro
 ## Endpoints
 
 - `GET /health`
+- `GET /version`
 - `POST /train/{store_id}`
 - `POST /predict/{store_id}`
 - `POST /train-predict/{store_id}`
@@ -22,6 +23,7 @@ Set `PROPHET_API_TOKEN` and send it as `x-api-token` header.
 - `DEFAULT_HORIZON_DAYS` (default `91`)
 - `MAX_HORIZON_DAYS` (default `180`)
 - `MIN_TRAIN_ROWS` (default `60`)
+- `APP_VERSION` (default `1.0.1`)
 
 ## Base44 Integration
 
